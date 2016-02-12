@@ -452,6 +452,13 @@
                         return color(d.ratio);
                     });
 
+                 var coverCircle = svg.append("circle")
+                    .attr("class", "cover-circle")
+                    .attr("r", radius * 2)
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .style("fill", "#5E5E5E");
+
                 //show labels for outlier dots
                 var dotsLabel = dotsGroups.append("text")
                     .attr("class", "dot-label")
