@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>		
+		<title>How much does your representative earn in addition to salary?</title>
+        <meta charset="utf-8">
+        <meta name="description" content="">
+    <meta name="keywords" content=" ">
+    <meta name="author" content="Jia You">
+	</head>
+    <style type="text/css">
+        /* Overall */
+        body {
+            background-color: #5E5E5E;
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
+            -webkit- box-sizing: border-box;
+        }
+
+        #scatterplot {
+            width: 80%;
+            margin: 6vh auto 0 auto;
+            height: 55vh;
+            /*outline: 1px solid white;*/
+        }
+
+        #intro {
+            width: 80%;
+            height: 30vh;
+            margin: 0 auto;
+            /*outline: 1px solid white;*/
+        }
+        
+        #list {
+            width: 80%;
+            margin: 0 auto;
+        }
+        /* Font */
+        body  {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 100%;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 150%;
+            text-align: center;
+            letter-spacing: 0.5px;
+            margin-bottom: 4vh;
+        }
+        
+        span {
+            font-weight: bold;
+            color: orange;
+        }
+
+        text {
+            fill: white;
+        }
+        .dot-label {
+            font-size: 90%;
+        }
+
+        .y_label, .x_label {
+            font-size: 90%;
+            font-weight: bold;
+            /*letter-spacing: 0.5px;*/
+        }
+
+        .x-axis text, .y-axis text {
+            font-size: 90%;
+        }
+
+        /* HTML Style */
+        button {
+            border: 2px solid white;
+            border-radius: 0px;
+            background-color: #5E5E5E;
+            margin: 0;
+            color: white;
+            font-size: 100%;
+            /*-webkit-appearance: none;*/
+        }
+        button:hover {
+            background-color: #9c9c9c;
+        }
+
+        button:focus {
+            outline: 0;
+            box-shadow: none;
+            background-color: #d7d7d7;
+            color: #4b4b4b;
+        }
+  
+        #searchrow {
+            height: 7vh;
+            margin: 0;
+            /*outline: 1px solid green;*/
+        }
+
+        #locationButton {
+            /*outline: 1px solid red;*/
+            width: 30%;
+            height: 100%;
+            margin: 0 5% 0 20%;
+            float: left;
+        }
+
+        form {
+            width: 30%;
+            height: 100%;
+            margin: 0;
+            float: left;
+            clear: right;
+            /*outline: 2px solid orange;*/
+        }
+
+        input {
+            width: 75%;
+            height: 4vh;
+            font-size: 100%;
+            padding: 5px;
+            margin: 0;
+        }
+
+        form button {
+            font-size: 100%;   
+            height: 100%;
+            width: 15%;
+            margin: 0;
+        }
+
+        #chatter {
+            height: 10vh;
+            margin: 2vh 5% 0 5%;
+            clear: left;
+            line-height: 1.3;
+            /*outline: 1px solid green;*/
+            text-align: left;
+            font-size: 110%;      
+        }
+
+        #chatter p{
+            margin-bottom: 5vh;
+        }
+
+        #chatter em {
+            font-size: 80%;
+            font-style: italic;
+        }
+
+        #buttonrow {
+            margin: 3vh auto 0 auto;
+            width: 80%;
+            /*outline: 1px solid orange;*/
+            height: 3vh;
+            font-size: 90%;
+            font-weight: lighter;
+        }
+
+        #buttonrow p {
+            margin: 0;
+            margin-right: 10px;
+            display: inline;
+            height: 100%;
+        }
+
+        #buttonrow button {
+            display: inline;
+            margin-top: 0;
+            margin-left: -6px;
+            height: 150%;
+            font-size: 90%;
+            border: 1px solid white;
+            padding: 0 10px;
+        }
+
+        footer p {
+            font-size: 10px;
+            text-align: center;
+        }
+        /* SVG style */
+
+        .x-axis path, .x-axis line, .y-axis path, .y-axis line {
+          fill: none;
+          stroke: white;
+          shape-rendering: optimizeSpeed;
+        }
+
+        .dot-circle {
+            /*fill: #fff;*/
+            stroke: none;
+            stroke-width: 2px;
+        }
+
+        .dot-label {
+            pointer-events: none;
+        }
+
+        .tooltip {
+            line-height: 0.5;
+            /*font-weight: bold;*/
+            padding: 5px 10px;
+            background: rgba(0, 0, 0, 0.7);      
+            border-radius: 10px;
+            font-size: 90%;
+            color: #fff;
+        }
+
+        .tooltip strong {
+            color: orange;
+            font-size: 100%;
+        }
+
+        .tooltip:after {
+          box-sizing: border-box;
+          display: inline;
+          font-size: 18px;
+          width: 92%;
+          line-height: 1.25;
+          color: rgba(0, 0, 0, 0.7);
+          content: "\25BC";
+          position: absolute;
+          text-align: center;
+          /*padding: 0;*/
+        }
+
+        #all {
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media screen and (max-width: 950px) {
+        html, body {font-size: 90%}
+        }
+
+        @media screen and (max-width: 768px) {
+        html, body {font-size: 14px}
+        h1 {line-height: 1.4; margin-bottom: 1vh}
+        #locationButton {width: 70%; height: 40px; margin: 1vh 15% 0 15%;}
+        form {width: 74%; height: 40px; margin: 2vh auto 2vh 15%;}
+        input {height: 25px;}
+        #chatter {height: 8vh; font-size: 16px;}
+        #buttonrow {height: 20px; width: 100%; margin: 0.5vh auto 0 auto;}
+        #scatterplot {height: 50vh; margin-top: 2vh;}
+        }
+
+        @media screen and (max-width: 640px) {
+        html, body {font-size: 12px;}
+        #intro {width: 90%; height: 40vh;}
+        h1 {font-size: 16px; line-height: 1.2; margin-bottom: 1vh}
+        #locationButton {width: 70%; height: 30px; margin: 1vh 15% 0 15%;}
+        form {width: 74%; height: 30px; margin: 2vh auto 2vh 15%;}
+        input {height: 15px;}
+        #chatter {width: 100%; height: 5vh; font-size: 12px; margin: 0 auto 1vh auto;}
+        #buttonrow {height: 25px; width: 100%; margin: 5vh auto 0 auto; font-size: 12px;}
+        #buttonrow p {font-size: 10px; display: block;}
+        #buttonrow button {height: 100%;}
+        #scatterplot {height: 50vh; width: 100%; margin-top: 1vh;}
+        }
+    </style>
+
+	<body>
+        <div id="intro">
+            <h1>How much does your representative earn in addition to salary?</h1>
+            <div id="searchrow">
+                <button id="locationButton">Search by your current location</button>
+                <form id="form">
+                    <input type="text" id="userzip" placeholder="Or by name or zipcode">
+                    <button id="go">Go</button>
+                </form>
+            </div>
+            <div id="chatter"><p>Each dot below represents a Congress member. You can hover over a dot to view more details, or click the buttons below to view members by income group. You can also search your representative by your current location, your zipcode or your representative's name.</p></div>
+            <div id="buttonrow">
+                <p>View by income percentile: </p>        
+                <button class="buttonQ" id="Q1">1st-25th</button>
+                <button class="buttonQ" id="Q2">26th-50th</button>
+                <button class="buttonQ" id="Q3">51st-75th</button>
+                <button class="buttonQ" id="Q4">76th-99th</button>
+                <button class="buttonQ" id="all">All members</button>        
+            </div>
+        </div>
+        <div id="scatterplot"></div>
+        <p id="list"></p>
+        <footer><p>By Jia You/Opensecrets.org</p></footer>
+                 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+        <script type="text/javascript">
+
+        $(document).ready(function() {
+            //set svg perimeters
+            var windowWidth = $("#scatterplot").width();
+            var windowHeight = $("#scatterplot").height();
+            var margin = {top: 30, right: windowWidth * 0.1, bottom: 30, left: windowWidth * 0.1},
+                width = $("#scatterplot").width() - margin.left - margin.right,
+                height = $("#scatterplot").height() - margin.bottom - margin.top;
+
+            var svg = d3.select("#scatterplot").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("trnsform", "translate(" + margin.left + "," + margin.top + ")");
+
+            //load data
+            d3.csv("data_web.csv", function(error, data) {
+
+                // console.log(data);
+                // console.log(data);
+                // data.sort(d3.ascending);
+
+                var incomeByQ = [];
+
+                //format raw data
+                data.forEach(function(d) {
+                    d.politician = d.politician;
+                    d.district = d.district;
+                    d.median_income = parseInt(d.median_income);
+                    d.unearned_no_rent = parseInt(d.unearned_no_rent);
+                    d.unearned_with_rent = parseInt(d.unearned_with_rent);
+                    d.ratio = Math.round(d.unearned_with_rent / d.median_income);
+                    d.party = d.politician.charAt(d.politician.length - 2);
+                    incomeByQ.push(d.unearned_with_rent);
+                    // console.log(d.ratio);
+                });
+
+                incomeByQ.sort(d3.ascending);
+                // console.log(incomeByQ);
+
+                //set number formats
+                var dollarFormat = d3.format("$3,");
+                var zipFormat = d3.format("02d");
+
+                //set scales
+                var x = d3.scale.linear()
+                    .domain([0, 120000])
+                    .range([margin.left, ( width + margin.left )]);
+
+                var y = d3.scale.linear()
+                    .domain([0, d3.max(data, function(d) {return d.unearned_with_rent})])
+                    .range([(height + margin.top), margin.top]);
+
+                var color = d3.scale.linear()
+                    .domain([0, 1, 50])
+                    .range([ "#D9F2BF", "#86AC60", "#264C00"]);
+
+                var quantile = d3.scale.quantile()
+                    .domain(incomeByQ)
+                    .range(["Q1", "Q2", "Q3", "Q4"]);
+
+                //set tooltip with d3-tip
+                var tip = d3.tip()
+                  .attr('class', 'tooltip')
+                  .offset([-15, 0]);
+
+                svg.call(tip);
+
+                //set x & y axes
+                var xAxis = d3.svg.axis()
+                    .scale(x)
+                    .orient("bottom")
+                    .ticks(5)
+                    .tickFormat(function (d) {
+                        var prefix = d3.formatPrefix(d);
+                        return "$" + prefix.scale(d) + prefix.symbol;
+                    });
+
+                svg.append("g")
+                    .attr("class", "x-axis")
+                    .attr("transform", "translate(0" + "," + (height + margin.top) + ")")
+                    .call(xAxis);
+
+                var yAxis = d3.svg.axis()
+                    .scale(y)
+                    .orient("left")
+                    .ticks(5)
+                    .tickFormat(function (d) {
+                        var prefix = d3.formatPrefix(d);
+                        return "$" + prefix.scale(d) + prefix.symbol;
+                    });
+
+                svg.append("g")
+                    .attr("class", "y-axis")
+                    .attr("transform", "translate(" + margin.left + ",0)")
+                    .call(yAxis);
+
+                //set axes labels
+                var xLabel = svg.append("text")
+                    .attr("class", "x_label")
+                    .attr("text-anchor", "end")
+                    .attr("x", width + margin.left + 35)
+                    .attr("y", height + margin.top - 10)
+                    .text("District median income");
+
+                var yLabel = svg.append("text")
+                    .attr("class", "y_label")
+                    .attr("text-anchor", "start")
+                    .attr("x", margin.left - 35)
+                    .attr("y", margin.top - 25)
+                    .attr("dy", ".75em")
+                    .text("Politician's unearned income including rent");
+
+                //draw dots
+                var radius = 5;
+
+                var dotsGroups = svg.selectAll(".dot")
+                    .data(data)
+                    .enter()
+                    .append("g")
+                    .attr("class", "dot-g")
+                    .attr("id", function(d) {
+                        // console.log(typeof d.district);
+                        return d.district;
+                    })
+                    .attr("transform", function(d) {
+                        if ( d.median_income > 0) {
+                                return "translate(" + x(d.median_income) + "," + y(d.unearned_with_rent) + ")";
+                            } else {
+                                return null;
+                            } 
+                    })
+                    //start animation
+                    // .style("opacity", 0);
+
+                    // dotsGroups.transition()
+                    // .duration(1000)
+                    // .style("opacity", 1)
+                    // .each(slide);
+
+                    // function slide() {
+                    //     d3.select(this)
+                    //     .transition()
+                    // .delay(500)
+                    // .attr("transform", function(d) {
+                    //     if ( d.median_income > 0) {
+                    //             return "translate(" + x(d.median_income) + "," + y(d.unearned_with_rent) + ")";
+                    //         } else {
+                    //             return null;
+                    //         } 
+                    //     })
+                    // };
+                    
+                var dotsCircles = dotsGroups.append("circle")
+                    .attr("class", "dot-circle")
+                    .attr("r", function(d) {
+                        return (d.median_income > 0) ? radius : null;
+                    })
+                    .style("fill", function(d) {
+                        return color(d.ratio);
+                    });
+
+                //show labels for outlier dots
+                var dotsLabel = dotsGroups.append("text")
+                    .attr("class", "dot-label")
+                    .text( function(d) {
+                        if (windowWidth < 660) {
+                            return d.politician;
+                        } else {
+                            return d.politician + ": " + dollarFormat(d.unearned_with_rent);
+                        };      
+                    })
+                    .attr("x", radius * 3)
+                    .attr("y", radius)
+                    .style("opacity", function(d) {
+                        return ( d.unearned_with_rent > 6000000 
+                            ) ? 1 : 0;
+                    });
+
+                //set animation effects
+
+                //move selected dot to front
+                function moveToFront() { 
+                    this.parentNode.appendChild(this); 
+                };
+
+                //reset dot labels
+                function resetLabels() {
+                    dotsLabel.transition().style("opacity", function(d) {
+                        return ( d.unearned_with_rent > 6000000 
+                            ) ? 1 : 0;
+                    });
+                }; 
+
+                //change dot opacity based on income quantile
+                function dotTransition(delay, duration) {
+                    dotsGroups.transition()
+                    .delay(delay)
+                    .duration(duration)
+                    // .ease("quad")
+                    .attr("transform", function(d) {
+                        if ( d.median_income > 0) {
+                                return "translate(" + x(d.median_income) + "," + y(d.unearned_with_rent) + ")";
+                            } else {
+                                return null;
+                            } 
+                    });   
+                }
+
+                //scale Y axis to original position
+                function resetScale() {
+                    y.domain([0, d3.max(data, function(d) {return d.unearned_with_rent})]);
+                    d3.select(".y-axis")
+                            .transition().duration(2000)
+                            .ease("linear")
+                            .call(yAxis);  
+
+                    d3.select(".yaxis_label")
+                        .text("Rescaled Axis");
+
+                    dotTransition(0, 2000);
+                    dotsGroups.style("opacity", 1);         
+                };
+
+                //scale Y axis based on income quantile
+                function rescale(rescaleUpper) {
+                    y.domain([0, rescaleUpper]);
+                    d3.select(".y-axis")
+                            .transition()
+                            .delay(100)
+                            .duration(1000)
+                            .ease("exp")
+                            .call(yAxis);  
+                    console.log("transition");
+                    d3.select(".yaxis_label")
+                        .text("Rescaled Axis");
+
+                    dotTransition(450, 1000);
+                };
+
+                // hover effect
+                dotsGroups.on("mouseover", function(d){
+                    clearHover();
+                    d3.select(this).each(moveToFront);
+                    d3.select(this).selectAll("circle").style("stroke", "orange")
+                    .style("stroke-width", 3);
+                    tip.html("<p>District: <strong>" + d.district + "</strong></p>" + "<p>Politician: <strong>" + d.politician + "</strong></p>" + "<p>Unearned income (including rent): <strong>" + dollarFormat(d.unearned_with_rent)  + "</strong></p>" + "<p>District median income: <strong>" + dollarFormat(d.median_income) + "</strong></p>");
+                    tip.show();
+
+                });
+
+                function clearHover() {
+                    dotsCircles.style("stroke", "none");
+                    tip.hide();
+                };
+
+                //button lightup effect
+                function buttonHighlight(button) {
+                    $(button).css({    
+                    "outline": 0,
+                    "box-shadow": "none",
+                    "background-color": "#d7d7d7",
+                    "color": "#4b4b4b"});
+                };
+
+                function clearButton() {
+                    $("#buttonrow button").css({
+                        "background-color": "#5E5E5E",
+                        "color": "white"
+                    })
+                };
+
+                //sort by income
+
+                var quantileTransition = {
+                    "Q1": 0.25,
+                    "Q2": 0.5,
+                    "Q3": 0.75,
+                    "Q4": 1
+                };
+
+                $(".buttonQ").click(function() {
+                    clearHover();
+                    dotsLabel.style("opacity", 0);
+                    resetScale();
+                    clearButton();
+                    var dotQuantile = $(this).attr("id");
+                    console.log(dotQuantile);
+                    var percentile = quantileTransition[dotQuantile];
+                    if (dotQuantile === "all") {
+                        buttonHighlight("#all");
+                        dotsGroups.style("opacity", 1);
+                        resetLabels();
+                    } else {
+                        showQuantile(dotQuantile, percentile);
+                    }                
+                });
+
+                function showQuantile(dotQuantile, percentile) {
+                    var rescaleUpper = d3.quantile(incomeByQ, percentile);
+                    dotsGroups.transition()
+                    .duration(700)
+                    .style("opacity", function(d) {
+                        return (quantile(d.unearned_with_rent) === dotQuantile ) ? 1: 0;
+                    })
+                    .each("start", rescale(rescaleUpper));
+                    // console.log("#" + dotQuantile);
+                    buttonHighlight("#" + dotQuantile);
+                };
+
+                //personalization
+                var input;
+                var filter;
+                var content = "";
+                var districtCode = null;
+                // personalization by geolocation
+                $("#locationButton").click(function() {
+                    input = null;
+                    content = ""; 
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(showPosition);
+                    } else {
+                        $("#chatter").innerHTML = "<p>Geolocation is not supported by this browser.</p>";
+                    };
+                });          
+
+                function showPosition( position ) {
+                    // console.log(position.coords.latitude, position.coords.longitude);
+                    var url = "https://congress.api.sunlightfoundation.com/districts/locate?latitude=" + position.coords.latitude + "&longitude=" + position.coords.longitude + "&apikey=7e42e0926e404d6cb8dac0ba15db2e3c";
+                        // console.log(districtCodes);
+                    content = ""; 
+                    $.getJSON(url, getDot); 
+                };
+
+                //personalization by zipcode or name
+                $("#form").submit( function ( event ) {
+                    event.preventDefault();
+                    input = $("input").val();
+                    console.log(input);
+                    console.log(parseInt(input));
+
+                    if ( parseInt(input) > 0 ) {
+                        // console.log(typeof parseInt(input));
+                        var url = "https://congress.api.sunlightfoundation.com/districts/locate?zip=" + input + "&apikey=7e42e0926e404d6cb8dac0ba15db2e3c";
+                    // console.log(url);
+                    content = "";            
+                    $.getJSON(url, getDot);
+                        
+                    } else {
+                        console.log("text");
+                        districtCode = null;
+                        highlight2();
+                    }
+
+                });
+                
+                function getDot ( returndata ) {
+                        // console.log(returndata);
+                        // console.log(returndata.results);
+                         $.each( returndata.results, function ( i, item ) {
+                            districtCode = item.state + zipFormat(item.district);
+                            console.log(districtCode);
+                            highlight2();                           
+                        });                  
+                    };
+                    function highlight2() {
+                        content = "";
+                        dotsGroups.each(function(d){
+                            // console.log(input);
+                            // console.log(districtCode);
+                            if (input === null) {
+                                filter = (d.district === districtCode);
+                            } else {
+                                filter = (d.politician.toLowerCase().indexOf(input.toLowerCase()) > -1 | d.district === districtCode);
+                            };            
+                            console.log(filter);
+                             if (filter === 1 | filter === true) {
+                                resetScale();
+                                clearButton();
+                                clearHover();
+                                dotsCircles.style("fill", function(d) {
+                                    return color(d.ratio);
+                                })
+                                .attr("r", radius)
+                            // resetList();
+                            //show quantile
+                            var dotQuantile = quantile(d.unearned_with_rent);
+                            var percentile = quantileTransition[dotQuantile];
+                            showQuantile(dotQuantile, percentile);
+
+                            //highlight dot
+                            d3.select(this).each(moveToFront);
+                            d3.select(this).select("circle")
+                            .transition()
+                            .delay(500)
+                            .duration(500)
+                            .style("fill", "orange")
+                            .attr("r", radius * 2)
+                            .style("opacity", 1);
+                            dotsLabel.style("opacity", 0);
+                            content += "<p>In Congresional District <strong>" + d.district + "</strong>, the local politician <span>" + d.politician + "</span> earned <span>" + dollarFormat(d.unearned_with_rent) + "</span> in income other than salary in 2014, <strong>" + d.ratio + "</strong> time(s) the district median income of " + dollarFormat(d.median_income) + ".</p>";
+
+                            $("#list").html(content); 
+                            }
+                        });
+                };
+
+            });              
+        });
+
+       
+
+           
+
+
+
+        </script>
+
+	</body>
+</html>
