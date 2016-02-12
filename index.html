@@ -530,7 +530,7 @@
                             .duration(1000)
                             .ease("exp")
                             .call(yAxis);  
-                    console.log("transition");
+                    //console.log("transition");
                     d3.select(".yaxis_label")
                         .text("Rescaled Axis");
 
@@ -584,7 +584,7 @@
                     resetScale();
                     clearButton();
                     var dotQuantile = $(this).attr("id");
-                    console.log(dotQuantile);
+                    //console.log(dotQuantile);
                     var percentile = quantileTransition[dotQuantile];
                     if (dotQuantile === "all") {
                         buttonHighlight("#all");
@@ -635,8 +635,8 @@
                 $("#form").submit( function ( event ) {
                     event.preventDefault();
                     input = $("input").val();
-                    console.log(input);
-                    console.log(parseInt(input));
+                    //console.log(input);
+                    //console.log(parseInt(input));
 
                     if ( parseInt(input) > 0 ) {
                         // console.log(typeof parseInt(input));
@@ -646,7 +646,7 @@
                     $.getJSON(url, getDot);
                         
                     } else {
-                        console.log("text");
+                        //console.log("text");
                         districtCode = null;
                         highlight2();
                     }
@@ -658,7 +658,7 @@
                         // console.log(returndata.results);
                          $.each( returndata.results, function ( i, item ) {
                             districtCode = item.state + zipFormat(item.district);
-                            console.log(districtCode);
+                            //console.log(districtCode);
                             highlight2();                           
                         });                  
                     };
@@ -672,7 +672,7 @@
                             } else {
                                 filter = (d.politician.toLowerCase().indexOf(input.toLowerCase()) > -1 | d.district === districtCode);
                             };            
-                            console.log(filter);
+                            //console.log(filter);
                              if (filter === 1 | filter === true) {
                                 resetScale();
                                 clearButton();
