@@ -490,7 +490,9 @@
 
                 //reset dot labels
                 function resetLabels() {
-                    dotsLabel.transition().style("opacity", function(d) {
+                    dotsLabel.transition()
+                    .delay(1000)
+                    .style("opacity", function(d) {
                         return ( d.unearned_with_rent > 6000000 
                             ) ? 1 : 0;
                     });
