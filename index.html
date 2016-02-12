@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>		
-		<title>How much does your representative earn in addition to salary?</title>
+    <head>      
+        <title>How much does your representative earn in addition to salary?</title>
         <meta charset="utf-8">
         <meta name="description" content="">
     <meta name="keywords" content=" ">
     <meta name="author" content="Jia You">
-	</head>
+    </head>
     <style type="text/css">
         /* Overall */
         body {
@@ -262,7 +262,7 @@
         }
     </style>
 
-	<body>
+    <body>
         <div id="intro">
             <h1>How much does your representative earn in addition to salary?</h1>
             <div id="searchrow">
@@ -343,6 +343,14 @@
                     .domain([0, d3.max(data, function(d) {return d.unearned_with_rent})])
                     .range([(height + margin.top), margin.top]);
 
+                // var y = d3.scale.log()
+                // .domain([1.1, d3.max(data, function(d) {return d.unearned_with_rent})])
+                // .range([(height + margin.top), margin.top]);
+
+                var color = d3.scale.linear()
+                    .domain([0, 1, 50])
+                    .range([ "#D9F2BF", "#86AC60", "#264C00"]);
+
                 var color = d3.scale.linear()
                     .domain([0, 1, 50])
                     .range([ "#D9F2BF", "#86AC60", "#264C00"]);
@@ -381,6 +389,15 @@
                         var prefix = d3.formatPrefix(d);
                         return "$" + prefix.scale(d) + prefix.symbol;
                     });
+
+                // var yAxis = d3.svg.axis()
+                //     .scale(y)
+                //     .orient("left")
+                //     .ticks(5)
+                //     .tickFormat(function (d) {
+                //         var prefix = d3.formatPrefix(d);
+                //         return "$" + prefix.scale(d) + prefix.symbol;
+                //     });
 
                 svg.append("g")
                     .attr("class", "y-axis")
@@ -530,7 +547,7 @@
                             .duration(1000)
                             .ease("exp")
                             .call(yAxis);  
-                    //console.log("transition");
+                    // console.log("transition");
                     d3.select(".yaxis_label")
                         .text("Rescaled Axis");
 
@@ -584,7 +601,7 @@
                     resetScale();
                     clearButton();
                     var dotQuantile = $(this).attr("id");
-                    //console.log(dotQuantile);
+                    // console.log(dotQuantile);
                     var percentile = quantileTransition[dotQuantile];
                     if (dotQuantile === "all") {
                         buttonHighlight("#all");
@@ -612,10 +629,12 @@
                 var filter;
                 var content = "";
                 var districtCode = null;
+                var searchResult = [];
                 // personalization by geolocation
                 $("#locationButton").click(function() {
                     input = null;
                     content = ""; 
+                    searchResult = [];
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(showPosition);
                     } else {
@@ -627,7 +646,8 @@
                     // console.log(position.coords.latitude, position.coords.longitude);
                     var url = "https://congress.api.sunlightfoundation.com/districts/locate?latitude=" + position.coords.latitude + "&longitude=" + position.coords.longitude + "&apikey=7e42e0926e404d6cb8dac0ba15db2e3c";
                         // console.log(districtCodes);
-                    content = ""; 
+                    content = "";
+                    searchResult = []; 
                     $.getJSON(url, getDot); 
                 };
 
@@ -635,18 +655,19 @@
                 $("#form").submit( function ( event ) {
                     event.preventDefault();
                     input = $("input").val();
-                    //console.log(input);
-                    //console.log(parseInt(input));
+                    // console.log(input);
+                    // console.log(parseInt(input));
 
                     if ( parseInt(input) > 0 ) {
                         // console.log(typeof parseInt(input));
                         var url = "https://congress.api.sunlightfoundation.com/districts/locate?zip=" + input + "&apikey=7e42e0926e404d6cb8dac0ba15db2e3c";
                     // console.log(url);
-                    content = "";            
+                    content = ""; 
+                    searchResult = [];           
                     $.getJSON(url, getDot);
                         
                     } else {
-                        //console.log("text");
+                        // console.log("text");
                         districtCode = null;
                         highlight2();
                     }
@@ -658,34 +679,44 @@
                         // console.log(returndata.results);
                          $.each( returndata.results, function ( i, item ) {
                             districtCode = item.state + zipFormat(item.district);
-                            //console.log(districtCode);
+                            // console.log(districtCode);
+                            content = ""; 
+                            searchResult = []; 
                             highlight2();                           
                         });                  
                     };
-                    function highlight2() {
-                        content = "";
-                        dotsGroups.each(function(d){
-                            // console.log(input);
-                            // console.log(districtCode);
-                            if (input === null) {
-                                filter = (d.district === districtCode);
-                            } else {
-                                filter = (d.politician.toLowerCase().indexOf(input.toLowerCase()) > -1 | d.district === districtCode);
-                            };            
-                            //console.log(filter);
-                             if (filter === 1 | filter === true) {
-                                resetScale();
-                                clearButton();
-                                clearHover();
-                                dotsCircles.style("fill", function(d) {
-                                    return color(d.ratio);
-                                })
-                                .attr("r", radius)
-                            // resetList();
-                            //show quantile
-                            var dotQuantile = quantile(d.unearned_with_rent);
-                            var percentile = quantileTransition[dotQuantile];
-                            showQuantile(dotQuantile, percentile);
+
+                function highlight2() {
+                    filter = false;
+                    content = "";
+                    searchResult = [];
+                    // var count = 0;
+                    // var unearnedArray = [];
+                    
+                    dotsGroups.each(function(d) {
+                        // console.log(input);
+                        // console.log(districtCode);
+
+                        //set filtering conditions
+                        if (input === null) {
+                            filter = (d.district === districtCode);
+                        } else {
+                            filter = (d.politician.toLowerCase().indexOf(input.toLowerCase()) > -1 | d.district === districtCode);
+                        }; 
+                        //console.log(filter);
+
+                        //highlight dots if meets filtering condition
+                        if (filter === 1 | filter === true) {
+
+                            //reset everything
+                            resetScale();
+                            clearButton();
+                            clearHover();
+                            searchResult.push(d);
+                            dotsCircles.style("fill", function(d) {
+                                return color(d.ratio);
+                            })
+                            .attr("r", radius);
 
                             //highlight dot
                             d3.select(this).each(moveToFront);
@@ -696,12 +727,64 @@
                             .style("fill", "orange")
                             .attr("r", radius * 2)
                             .style("opacity", 1);
-                            dotsLabel.style("opacity", 0);
-                            content += "<p>In Congresional District <strong>" + d.district + "</strong>, the local politician <span>" + d.politician + "</span> earned <span>" + dollarFormat(d.unearned_with_rent) + "</span> in income other than salary in 2014, <strong>" + d.ratio + "</strong> time(s) the district median income of " + dollarFormat(d.median_income) + ".</p>";
 
-                            $("#list").html(content); 
-                            }
-                        });
+                            //set dotlabel
+                            dotsLabel.style("opacity", 0);
+                        } else {
+
+                            //reset dot color
+                            dotsCircles.style("fill", function(d) {
+                                    return color(d.ratio);
+                                });
+
+                            //give error message in list
+                            $("#list").html("Your search did not return any matching result.")
+                        } ;
+
+                    });
+                    // console.log(searchResult);
+                    // console.log(searchResult.length);
+
+                    //treat multiple search result scenario
+                    if (searchResult.length > 1) {
+                        
+                        //sort results by unearned_income descending
+                        searchResult.sort(compare);
+
+                        function compare(a,b) {
+                              if (a.unearned_with_rent < b.unearned_with_rent) {
+                                return 1;
+                              } else if (a.unearned_with_rent > b.unearned_with_rent) {
+                                return -1;
+                              } else {
+                                return 0;
+                              }                        
+                        };
+                        // console.log(searchResult);                          
+                        // console.log(searchResult[0].unearned_with_rent);
+
+                        //scale Y-axis to highest search result
+                        rescaleUpper = searchResult[0].unearned_with_rent;
+                        dotsGroups.transition()
+                            .duration(700)
+                            .each("start", rescale(rescaleUpper));
+                        } 
+                    //treat single search result scenario: scale to quantile                  
+                    else {
+                        // console.log(searchResult[0].unearned_with_rent);
+                        var dotQuantile = quantile(searchResult[0].unearned_with_rent);
+                        var percentile = quantileTransition[dotQuantile];
+                        console.log(dotQuantile, percentile);
+                        showQuantile(dotQuantile, percentile);
+                    };
+
+                    content = "";
+                    $.each( searchResult, function ( i, item ) {
+                        // console.log("hello");
+                        // console.log(item.politician);  
+                         content += "<p>In Congresional District <strong>" + item.district + "</strong>, the local politician <span>" + item.politician + "</span> earned <span>" + dollarFormat(item.unearned_with_rent) + "</span> in income other than salary in 2014, <span>" + item.ratio + "</span> time(s) the district median income of " + dollarFormat(item.median_income) + ".</p>"; 
+                         $("#list").html(content);                     
+                    });   
                 };
 
             });              
@@ -715,5 +798,5 @@
 
         </script>
 
-	</body>
+    </body>
 </html>
