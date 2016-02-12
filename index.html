@@ -296,7 +296,7 @@
             //set svg perimeters
             var windowWidth = $("#scatterplot").width();
             var windowHeight = $("#scatterplot").height();
-            var margin = {top: 30, right: windowWidth * 0.1, bottom: 30, left: windowWidth * 0.1},
+            var margin = {top: 30, right: windowWidth * 0.15, bottom: 30, left: windowWidth * 0.1},
                 width = $("#scatterplot").width() - margin.left - margin.right,
                 height = $("#scatterplot").height() - margin.bottom - margin.top;
 
@@ -324,7 +324,8 @@
                     d.ratio = Math.round(d.unearned_with_rent / d.median_income);
                     d.party = d.politician.charAt(d.politician.length - 2);
                     incomeByQ.push(d.unearned_with_rent);
-                    // console.log(d.ratio);
+                    d.state = d.district.substring(0,2);
+                    // console.log(d.state);
                 });
 
                 incomeByQ.sort(d3.ascending);
@@ -342,10 +343,6 @@
                 var y = d3.scale.linear()
                     .domain([0, d3.max(data, function(d) {return d.unearned_with_rent})])
                     .range([(height + margin.top), margin.top]);
-
-                // var y = d3.scale.log()
-                // .domain([1.1, d3.max(data, function(d) {return d.unearned_with_rent})])
-                // .range([(height + margin.top), margin.top]);
 
                 var color = d3.scale.linear()
                     .domain([0, 1, 50])
@@ -389,15 +386,6 @@
                         var prefix = d3.formatPrefix(d);
                         return "$" + prefix.scale(d) + prefix.symbol;
                     });
-
-                // var yAxis = d3.svg.axis()
-                //     .scale(y)
-                //     .orient("left")
-                //     .ticks(5)
-                //     .tickFormat(function (d) {
-                //         var prefix = d3.formatPrefix(d);
-                //         return "$" + prefix.scale(d) + prefix.symbol;
-                //     });
 
                 svg.append("g")
                     .attr("class", "y-axis")
@@ -516,7 +504,7 @@
                     // .ease("quad")
                     .attr("transform", function(d) {
                         if ( d.median_income > 0) {
-                                return "translate(" + x(d.median_income) + "," + y(d.unearned_with_rent) + ")";
+                                return "translate(" + x(d.median_income) + "," + y(d.unearned_with_rent + 1) + ")";
                             } else {
                                 return null;
                             } 
@@ -538,6 +526,7 @@
                     dotsGroups.style("opacity", 1);         
                 };
 
+
                 //scale Y axis based on income quantile
                 function rescale(rescaleUpper) {
                     y.domain([0, rescaleUpper]);
@@ -552,6 +541,45 @@
                         .text("Rescaled Axis");
 
                     dotTransition(450, 1000);
+                };
+
+                function rescaleAll() {
+                    y = d3.scale.log()
+                        .base(100)
+                        .domain([1, 100000000])
+                        // .domain([0.1, d3.max(data, function(d) {return d.unearned_with_rent})])
+                        .range([(height + margin.top), margin.top]);
+                    yAxis = d3.svg.axis()
+                        .scale(y)
+                        .orient("left")
+                        .tickFormat(function(d) {
+                            return y.tickFormat(6,d3.format("$,d"))(d);
+                        })
+                        .tickSize(0);
+                    d3.select(".y-axis")
+                            .transition()
+                            .delay(100)
+                            .duration(1000)
+                            .ease("exp")
+                            .call(yAxis);  
+                    // console.log("transition");
+                    d3.select(".yaxis_label")
+                        .text("Rescaled Axis");
+
+                    dotTransition(450, 1000);
+
+                    y = d3.scale.linear()
+                    .domain([0, d3.max(data, function(d) {return d.unearned_with_rent})])
+                    .range([(height + margin.top), margin.top]);
+
+                    yAxis = d3.svg.axis()
+                    .scale(y)
+                    .orient("left")
+                    .ticks(5)
+                    .tickFormat(function (d) {
+                        var prefix = d3.formatPrefix(d);
+                        return "$" + prefix.scale(d) + prefix.symbol;
+                    });
                 };
 
                 // hover effect
@@ -606,7 +634,7 @@
                     if (dotQuantile === "all") {
                         buttonHighlight("#all");
                         dotsGroups.style("opacity", 1);
-                        resetLabels();
+                        rescaleAll();
                     } else {
                         showQuantile(dotQuantile, percentile);
                     }                
